@@ -2,6 +2,7 @@ def substrings(string, dict)
   substrings_found = Hash.new
   dict.each do |item|
     if string.include?(item) && substrings_found[item] == nil
+      # this uses .scan to find an array of matches, the length of that array is the "count" for that substring.
       substrings_found[item] = string.scan(item).length
     end
   end
