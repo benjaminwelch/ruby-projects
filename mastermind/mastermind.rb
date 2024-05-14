@@ -304,31 +304,3 @@ game.the_round_loop(game)
 game.after_round(game)
 game.display.print_next_round_prompt(game)
 game.the_round_loop(game)
-
-
-
-
-# computer = Computer.new
-# # secret_code = ["🔴", "🔵", "🟣 ", "🟢 "]
-# secret_code = computer.generate_new_code
-# p "game.controller.turns: #{game.controller.turns}"
-# p "game.controller.turn: #{game.controller.turn}"
-# p "game.controller.guesses.size: #{game.controller.guesses.size}"
-# # game.display.print_board(game.controller.turns, game.controller.turn, game.controller.guesses)
-# game.display.prompt_for_turn
-# print game.display.cursor.move(72, 1)
-# game.controller.process_codebreaker_input(secret_code)
-# game.controller.process_codebreaker_input(secret_code)
-# game.controller.process_codebreaker_input(secret_code)
-# p "game.controller.turns: #{game.controller.turns}"
-# p "game.controller.turn: #{game.controller.turn}"
-# p "game.controller.rounds: #{game.controller.rounds}"
-# p "game.controller.guesses.size: #{game.controller.guesses.size}"
-# p secret_code
-# game = GameLoop.new
-# computer = Computer.new
-# game.display.new_blank_board
-# computer.generate_new_code
-# game.display.prompt_for_turn
-# print game.display.cursor.move(72, 1)
-# guess = game.controller.process_codebreaker_input
