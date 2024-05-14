@@ -75,62 +75,70 @@ end
 
 # controller
 class GameController
-  attr_reader :rounds, :turns, :turn, :guesses # may not need all these. xxx
+  attr_reader :rounds, :turns, :turn, :guesses, :maker_points, :breaker_points, :feedback # may not need all these. xxx
+  attr_writer :maker_points, :breaker_points
 
   def initialize(game_board, display)
     @game_board = game_board
     @display = display
-    @rounds = 3
-    @turns = 10
-    @turn = 1
+    @rounds = [3, 2, 1]
+    @turns = (1..10).to_a.reverse
     @guesses = []
     @feedback = []
+    @maker_points = []
+    @breaker_points = []
   end
   
   def next_turn
-    @turn += 1
+    @turns.pop
   end
 
   def next_round
-    @rounds -= 1 if @rounds > 0
+    if @rounds.size > 0
+      @rounds.pop
+    else
+      @rounds
+    end
+    @guesses = []
+    @turns = (1..10).to_a.reverse
   end
   
-  def round_over?(guess = game.controller.guesses[-1], secret_code, turn, turns)
+  def round_over?(guess, secret_code, turn, turns)
     round_conditions = [
       guess == secret_code,
-      turn > turns
+      turns == []
     ]
     # return true if round_conditions.any? { |condition| condition }
     if round_conditions.any? { |condition| condition }
-      # puts true
-      # puts "guess: #{guess}"
-      # puts "secret_code: #{secret_code}"
-      # puts "turn: #{turn}"
-      # puts "turns: #{turns}"
       return true
     end
-    # puts false
-    # puts "guess: #{guess}"
-    # puts "secret_code: #{secret_code}"
-    # puts "turn: #{turn}"
-    # puts "turns: #{turns}"
     false
   end
   
   def process_codebreaker_input(secret_code)
     # p "secret_code: #{secret_code}"
+    guess = get_valid_guess
+    guess_colors = map_input_to_guess(guess, secret_code)
+    guess = guess_colors
+  end
+  
+  def get_valid_guess
     guess = gets.chomp.downcase
     until valid_input?(guess) && guess.length == 4
       @display.invalid_turn_input
       guess = gets.chomp.downcase
     end
-    map_input_to_guess(guess, secret_code)
+    if guess == "exit"
+      puts `clear`
+      exit
+    end
+    guess
   end
   
   def valid_input?(guess)
     required_characters = ['r', 'y', 'b', 'g', 'p', 'o']
     guess_array = guess.chars.to_a
-    guess_array.all? { |char| required_characters.include?(char) }
+    guess_array.all? { |char| required_characters.include?(char) } || guess == "exit"
   end
   
   def map_input_to_guess(guess, secret_code)
@@ -146,15 +154,12 @@ class GameController
     @guesses << guess_colors
     @feedback << guess_feedback = check_guesses(guess_colors, secret_code)
     self.next_turn
-    @display.print_board(@turns, @turn, @guesses, @feedback, secret_code)
+    @display.print_board(@turns, @turns[-1], @guesses, @feedback, secret_code)
   end
   
   def check_guesses(guess, secret_code)
     if round_over?(guess, secret_code, turn, turns)
-      @display.print_round_over
       guess_feedback = ['■', '■', '■', '■']
-      self.next_round
-      
     else
       guess_feedback = calculate_guess_feedback(guess, secret_code)
     end
@@ -221,7 +226,8 @@ class GameLoop
   def start_game(game)
     computer = Computer.new
     secret_code = computer.generate_new_code
-    game.display.new_blank_board(secret_code)
+    controller = game.controller
+    game.display.print_board(controller.turns, controller.turns[-1], controller.guesses, controller.feedback, secret_code)
     # game.display.print_board
     game.display.prompt_for_turn
     print game.display.cursor.move(72, 1)
@@ -231,11 +237,49 @@ class GameLoop
   def the_round_loop(game)
     secret_code = start_game(game)
     guess = game.controller.guesses[-1]
-    until game.controller.round_over?(guess, secret_code, game.controller.turn, game.controller.turns)
+    until game.controller.round_over?(guess, secret_code, game.controller.turns[-1], game.controller.turns)
       game.controller.process_codebreaker_input(secret_code)
-      game.display.prompt_for_turn
-      # print game.display.cursor.move(72, 1)
+      guess = game.controller.guesses[-1]
+      unless guess == secret_code || game.controller.turns == []
+        game.display.prompt_for_turn
+        print game.display.cursor.move(72, 1)
+      end
     end
+  end
+  
+  def broken_first_turn?(game)
+    return true if game.controller.turns[-1] == 2
+  end
+  
+  def code_not_broken?(game)
+    return true if game.controller.turns == []
+  end
+  
+  def calcuate_points(game)
+    controller = game.controller
+    round_end_options = ['broken', 'not_broken']
+    if broken_first_turn?(game)
+      controller.maker_points << 1
+      controller.breaker_points << 9
+      round_end_options[0]
+    elsif code_not_broken?(game)
+      controller.maker_points << 11
+      controller.breaker_points << 0
+      round_end_options[1]
+    else
+      controller.maker_points << 10 - controller.turns.size
+      controller.breaker_points << controller.turns.size
+      round_end_options[0]
+    end
+  end
+  
+  def after_round(game)
+    print_game_over(game) if game.controller.rounds == []
+    finished_round = game.controller.next_round
+    @display.print_round_over(game, calcuate_points(game))
+    @display.print_game_state(game, finished_round)
+    # puts game.controller.rounds
+    # print_variables(game, finished_round)
   end
   
   def self.new_game
@@ -246,13 +290,19 @@ class GameLoop
     print game.display.cursor.move(72, 1)
   end
   
-  def print_variables(game)
-    puts "@turn: #{game.controller.turn}"
-    puts "@turns: #{game.controller.turns}"  
+  def print_variables(game, finished_round)
+    puts "@turn: #{game.controller.turns[-1]}"
+    puts "@turns: #{game.controller.turns}"
+    puts "game.guess: #{game.controller.guesses[-1]}"
+    p finished_round
+    puts "game.controller.maker_points: #{game.controller.maker_points}"
   end
 end
 
 game = GameLoop.new
+game.the_round_loop(game)
+game.after_round(game)
+game.display.print_next_round_prompt(game)
 game.the_round_loop(game)
 
 

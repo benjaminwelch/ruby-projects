@@ -8,8 +8,79 @@ class GameView
     @cursor = TTY::Cursor
   end
   
-  def print_round_over
-    puts "You broke the code! Good job!"
+  def round_loading_animation(game)
+    spinner = TTY::Spinner.new("[:spinner] Loading round #{game.controller.rounds[-1]}...", format: :dots_2)
+    spinner.auto_spin # Automatic animation with default interval
+    sleep(3) # Perform task
+    spinner.stop() # Stop animation
+  end
+  
+  def print_game_state(game, finished_round)
+    controller = game.controller
+    breaker_score = "%02d" % game.controller.breaker_points.sum
+    maker_score = "%02d" % game.controller.maker_points.sum
+    puts ""
+    score = <<-SCORE_BOARD
+    ╔═══════════════════════╗
+    ║      SCORE BOARD      ║
+    ╚═══════════════════════╝
+    –––––––––––––––––––––––––
+    |  MAKER   |   BREAKER  |
+    –––––––––––––––––––––––––
+    |    #{maker_score}    |     #{breaker_score}     |
+    SCORE_BOARD
+    current_game_state = <<-GAME_STATE
+    That is the end of round #{finished_round}.
+    There are #{controller.rounds.size} left.
+    GAME_STATE
+    end_game_state = <<-GAME_STATE
+    The game is over, your final score:
+    GAME_STATE
+    
+    puts score
+    puts ""
+    if finished_round == 3
+      puts end_game_state
+    else
+      puts current_game_state
+    end
+    puts ""
+  end
+  
+  def print_next_round_prompt(game)
+    play_prompt = <<-PLAY_PROMPT
+    Get ready for round #{game.controller.rounds[-1]}.
+    Type 'exit' (enter) to quit the game.
+    PLAY_PROMPT
+    puts play_prompt
+    round_loading_animation(game)
+    puts ""
+    puts ""
+  end
+  
+  def print_round_over(game, round_conclusion)
+    number_of_turns = game.controller.turns.size
+    guesses = game.controller.guesses.size
+    maker_round_points = game.controller.maker_points[0]
+    breaker_round_points = game.controller.breaker_points[0]
+    puts ""
+    
+    code_broken = <<-CODE_BROKEN
+    Well done, CODEBREAKER. You broke the code with #{number_of_turns} turns left and receive #{breaker_round_points} points!
+    It took you #{guesses} guesses, CODEMAKER receives #{maker_round_points} points!
+    CODE_BROKEN
+    
+    code_not_broken = <<-CODE_NOT_BROKEN
+    I'm sorry, CODEBREAKER. You didn't break the code the code and receive #{breaker_round_points} points!
+    CODEMAKER receives #{maker_round_points} points.
+    CODE_NOT_BROKEN
+    
+    if round_conclusion == "broken"
+      puts code_broken
+    elsif round_conclusion == "not_broken"
+      puts code_not_broken
+    end
+    puts ""
   end
 
   def board_title(secret_code)
@@ -18,8 +89,10 @@ class GameView
     c3 = @hidden_code[2]
     c4 = @hidden_code[3]
     board_title_hide = <<-ROW
-    __________________________
-    |       MASTERMIND       |
+    
+    ╔════════════════════════╗
+    ║       MASTERMIND       ║
+    ╚════════════════════════╝
     ––––––––––––––––––––––––––
     |#{c1}|#{c2}|#{c3}|#{c4}| SECRET CODE|
     ––––––––––––––––––––––––––
@@ -27,8 +100,10 @@ class GameView
     ROW
     
     board_title_show = <<-ROW
-    __________________________
-    |       MASTERMIND       |
+    
+    ╔════════════════════════╗
+    ║       MASTERMIND       ║
+    ╚════════════════════════╝
     ––––––––––––––––––––––––––
     |#{secret_code[0]}|#{secret_code[1]}|#{secret_code[2]}|#{secret_code[3]}| SECRET CODE|
     ––––––––––––––––––––––––––
@@ -39,7 +114,7 @@ class GameView
   end
 
   def new_blank_board(secret_code)
-    # puts `clear`
+    puts `clear`
       row_number = 10
       puts board_title(secret_code)
       10.times do
@@ -55,7 +130,7 @@ class GameView
   end
 
   def print_board(turns, turn, guesses, feedback, secret_code)
-    # puts `clear`
+    puts `clear`
     row_number = 10
     guess_row_number = guesses.size
     board_title(secret_code)
@@ -134,11 +209,11 @@ class GameView
     - if you don't see any FEEDBACK pegs change, none of your pegs is in the right place.
     
     POINTS:
-    - the computer gets a point for every GUESS you make.
-    - you get points for every GUESS remaining on the board.
-    - if you guess the code on the first try, that's -1 point for the computer
-    - if you are unable to get the code in 10 GUESSES, the computer gets 11 points.
-    - Breaking the code in 4 GUESSES would leave you with 6 points and the computer with 4.
+    - the CODEMAKER gets a point for every GUESS you make.
+    - the CODEBREAKER gets points for every GUESS remaining on the board.
+    - if BREAKER guesses the code on the first try, that's -1 point for the MAKER, 9 points to BREAKER.
+    - If BREAKER is unable to get the code in 10 GUESSES, the MAKER gets 11 points.
+    - Breaking the code in 4 GUESSES would leave BREAKER with 6 points and the MAKER with 4.
     
     HOW TO:
     - use the first letter of each color to make a GUESS. r = 🔴, b = 🔵, and so on…
