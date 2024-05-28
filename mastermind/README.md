@@ -1,9 +1,9 @@
 # The Odin Project: Mastermind
 ##### Can you break the code?
 
-This is my implementation of MASTERMIND. I did not implement the ability for the human player to chose whether they are the CODEMAKER or CODEMAKER. The human is always the CODEBREAKER.
+This is my implementation of MASTERMIND. I did not implement the ability for the human player to chose whether they are the CODEMAKER/CODEBREAKER. The human is always the CODEBREAKER.
 
-I was a bit too ambitious and implemented things like:
+I was a bit too ambitious up front and implemented things like:
 - full MASTERMIND board in the terminal
   - getting this to work/look right took quite a bit of work.
 - use of emoji so you can still play with colors like the hardware game.

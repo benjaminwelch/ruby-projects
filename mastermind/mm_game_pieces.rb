@@ -2,7 +2,7 @@ module GamePieces
   attr_reader :code_pegs, :key_pegs, :char_to_index, :secret_code
   
   def initialize
-    @@code_pegs = [ '🔴', '🟡 ', '🔵', '🟢 ', '🟣 ', '🟠 ' ]
+    @@code_pegs = [ '🔴', '🟡', '🔵', '🟢', '🟣', '🟠' ]
     @@key_pegs = [ '⚫', '⚪' ]
     @hole = '⬜️'
     @@char_to_index = {

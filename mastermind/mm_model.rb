@@ -4,6 +4,15 @@ class GameModel
   include GamePieces
 end
 
+class Computer # model
+  include GamePieces
+  
+  def initialize
+    @name = 'computer'
+    @score = 0
+  end
+end
+
 class GameLoop
   include GamePieces
   

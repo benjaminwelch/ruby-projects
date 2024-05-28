@@ -9,23 +9,6 @@ require_relative 'mm_controller' # view
 require_relative 'mm_model' # view
 require_relative 'mm_game_pieces'
 
-
-class Player # model
-  def initialize
-    @name = 'human'
-    @score = 0
-  end
-end
-
-class Computer # model
-  include GamePieces
-  
-  def initialize
-    @name = 'computer'
-    @score = 0
-  end
-end
-
 game = GameLoop.new
 computer = Computer.new
 secret_code = computer.generate_new_code

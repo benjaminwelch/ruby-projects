@@ -231,14 +231,14 @@ class GameView
     The computer (CODEMAKER) has created a 4 color code using 6 colors. 
     Your job is to break the code (CODEBREAKER) in 10 GUESSES or less.
     
-    NOTE: These are the 6 colors the computer will use: 🔴 🟡  🔵 🟢  🟣  🟠 to make the code. 
+    NOTE: These are the 6 colors the computer will use: 🔴 🟡 🔵 🟢 🟣 🟠 to make the code. 
     It's possible for colors to repeat.
     
     TURNS:
     - there are 10 turns/GUESSES. 
     - each turn you will choose 4 colors as your guess and place them on the board.
     - use the first letter of each color to make a GUESS. r = 🔴, b = 🔵, and so on…
-    - to GUESS: 🟡 |🔵|🟢 |🟣 , you would type: ybgp and hit (enter/return).
+    - to GUESS: 🟡|🔵|🟢|🟣 , you would type: ybgp and hit (enter/return).
     
     FEEDBACK:
     - each turn, you will get feedback from the CODE MAKER
@@ -267,15 +267,16 @@ class GameView
     puts <<-TURN
     
    Place your GUESS on the board.
-   |COLORS: r🔴 y🟡  b🔵 g🟢  p🟣  o🟠
+   |COLORS: r🔴 y🟡 b🔵 g🟢 p🟣 o🟠
     
-   To GUESS: 🟡 |🔵|🟢 |🟣 , you would type: ybgp and hit "enter/return"…
+   To GUESS: 🟡|🔵|🟢|🟣, you would type: ybgp and hit "enter/return"…
    TURN
   end
   
   def invalid_turn_input
+    puts ""
     puts "    Invalid GUESS. Please chose 4 colors."
-    print "    To GUESS: 🟡 |🔵|🟢 |🟣 , you would type: ybgp and hit 'enter/return'… "
+    print "    To GUESS: 🟡|🔵|🟢|🟣, you would type: ybgp and hit 'enter/return'… "
   end
   
   def invalid_input
