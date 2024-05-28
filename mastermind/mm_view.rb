@@ -47,9 +47,9 @@ class GameView
     final_score = winner == 'tie' ? "It's a tie. You both recieved #{winner_points}." : "#{winner.upcase} is the winner of this game with #{winner_points} points."
     
     end_game_state = <<-GAME_STATE
-    The game is over. Above is the final score.
+    The game is over. Here is the final score.
     #{final_score}
-    Play again? (y/n)
+    Thanks for playing!
     GAME_STATE
     
     puts score
@@ -80,20 +80,23 @@ class GameView
     puts ""
     
     first_turn = <<-FIRST_TURN
-    Well done, CODEBREAKER. You broke the code on your first attempt! Luck is on your side. 
+    Well done, CODEBREAKER. You broke the code on your first attempt!
+    Luck is on your side. 
     CODEBREAKER receives #{breaker_round_points} points!
     CODEMAKER   receives #{maker_round_points} points!
     FIRST_TURN
     
     code_broken = <<-CODE_BROKEN
-    Well done, CODEBREAKER. You broke the code with #{number_of_turns} turns left…
+    Well done, CODEBREAKER.
+    You broke the code with #{number_of_turns} turns left…
     It took you #{guesses} guesses… 
     CODEBREAKER recieves #{breaker_round_points} points!
     CODEMAKER   receives #{maker_round_points} points!
     CODE_BROKEN
     
     code_not_broken = <<-CODE_NOT_BROKEN
-    I'm sorry, CODEBREAKER. You didn't break the code the code and receive #{breaker_round_points} points!
+    I'm sorry, CODEBREAKER. You didn't break the code 
+    and receive #{breaker_round_points} points!
     CODEMAKER receives #{maker_round_points} points.
     CODE_NOT_BROKEN
     
@@ -207,6 +210,7 @@ class GameView
   end
   
   def print_greeting
+    puts `clear`
     greeting = <<-GREETING
     
     Welcome to MASTERMIND: codemaker vs. codebreaker
